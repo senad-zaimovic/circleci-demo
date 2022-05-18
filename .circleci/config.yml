@@ -20,7 +20,7 @@ jobs:
   validate-code:
     working_directory: ~/project
     docker:
-      - image: cimg/node:latest
+      - image: cimg/node:current
     steps:
       - checkout
       - run:
