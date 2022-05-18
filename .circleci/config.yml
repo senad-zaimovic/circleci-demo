@@ -30,6 +30,11 @@ jobs:
             npm --version
             npm cache verify
             npm install --verbose
+      - save_cache:
+          key: npm-packages-{{ checksum "demo-app/package.json" }}-{{ checksum "demo-app/package-lock.json" }}
+          paths:
+            - ./demo-app/node_modules/
+            - ~/.npm/
 
 
 # Invoke jobs via workflows
