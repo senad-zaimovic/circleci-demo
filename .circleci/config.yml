@@ -36,12 +36,14 @@ jobs:
           name: Run lint
           command: |
             cd demo-app
-            npm run lint
+            npm run lint:ci
       - run:
           name: Run tests
           command: |
             cd demo-app
-            npm run test
+            npm run test:ci
+      - store_test_results:
+          path: ./demo-app/reports/
       - save_cache:
           key: npm-packages-{{ checksum "demo-app/package.json" }}-{{ checksum "demo-app/package-lock.json" }}
           paths:
