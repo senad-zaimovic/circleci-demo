@@ -32,6 +32,11 @@ jobs:
             npm --version
             npm cache verify
             npm install --verbose
+      - run:
+          name: Run lint
+          command: |
+            cd demo-app
+            npm run lint
       - save_cache:
           key: npm-packages-{{ checksum "demo-app/package.json" }}-{{ checksum "demo-app/package-lock.json" }}
           paths:
