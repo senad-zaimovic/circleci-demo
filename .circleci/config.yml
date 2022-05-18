@@ -37,6 +37,11 @@ jobs:
           command: |
             cd demo-app
             npm run lint
+      - run:
+          name: Run tests
+          command: |
+            cd demo-app
+            npm run test
       - save_cache:
           key: npm-packages-{{ checksum "demo-app/package.json" }}-{{ checksum "demo-app/package-lock.json" }}
           paths:
