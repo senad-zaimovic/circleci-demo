@@ -67,7 +67,8 @@
     "test": "node scripts/test.js",
     "test:ci": "cross-env JEST_JUNIT_OUTPUT_DIR=\"./reports/\" jest --ci --runInBand --reporters=default --reporters=jest-junit",
     "lint": "eslint .",
-    "lint:ci": "eslint . --format junit --output-file ./reports/eslint.xml"
+    "lint:ci": "eslint . --format junit --output-file ./reports/eslint.xml",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
