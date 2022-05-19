@@ -94,13 +94,16 @@ jobs:
           at: demo-app
       - restore_cache:
           key: npm-packages-{{ checksum "demo-app/package.json" }}-{{ checksum "demo-app/package-lock.json" }}
-      # - add_ssh_keys:
-      #     fingerprints:
-      #       - "SO:ME:FIN:G:ER:PR:IN:T"
-      # - run:
-      #     name: Do project deploy to GitHub pages
-      #     command: |
-      #       npm run deploy
+      - add_ssh_keys:
+          fingerprints:
+            - "d8:a6:92:64:0b:e9:e0:ac:83:58:46:0a:a0:c7:d2:19"
+      - run:
+          name: Do project deploy to GitHub pages
+          command: |
+            cd demo-app
+            git config user.email "${DEPLOYMENT_EMAIL}"
+            git config user.name "${CIRCLE_USERNAME}"
+            npm run deploy
       - run:
           name: Create release bundle
           command: |
