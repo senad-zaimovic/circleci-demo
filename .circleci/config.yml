@@ -49,6 +49,21 @@ jobs:
           paths:
             - ./demo-app/node_modules/
             - ~/.npm/
+  build-code:
+    working_directory: ~/project
+    docker:
+      - image: cimg/node:current
+    steps:
+      - checkout
+      - restore_cache:
+          key: npm-packages-{{ checksum "demo-app/package.json" }}-{{ checksum "demo-app/package-lock.json" }}
+      - run:
+          name: Do project build
+          no_output_timeout: 2m
+          command: |
+            cd demo-app
+            npm run build
+
 
 
 # Invoke jobs via workflows
@@ -60,3 +75,6 @@ workflows:
   validation-workflow:
     jobs:
       - validate-code
+      - build-code:
+          requires:
+            - validate-code
