@@ -26,6 +26,13 @@ jobs:
         - run:
             name: "Say hello windows"
             command: "Write-Host 'Hello, Windows'"
+  say-hello-linux:
+      machine:
+        image: ubuntu-2004:current
+      steps:
+        - run:
+            name: "Say hello linux"
+            command: "echo 'Hello, Linux'"
 
   validate-code:
     working_directory: ~/project
@@ -112,6 +119,7 @@ workflows:
     jobs:
       - say-hello
       - say-hello-windows
+      - say-hello-linux
   validation-workflow:
     jobs:
       - validate-code
