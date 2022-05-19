@@ -67,6 +67,31 @@ jobs:
           root: demo-app
           paths:
             - build/*
+  deploy-code:
+    working_directory: ~/project
+    docker:
+      - image: cimg/node:current
+    steps:
+      - checkout
+      - attach_workspace:
+          at: demo-app
+      - restore_cache:
+          key: npm-packages-{{ checksum "demo-app/package.json" }}-{{ checksum "demo-app/package-lock.json" }}
+      # - add_ssh_keys:
+      #     fingerprints:
+      #       - "SO:ME:FIN:G:ER:PR:IN:T"
+      # - run:
+      #     name: Do project deploy to GitHub pages
+      #     command: |
+      #       npm run deploy
+      - run:
+          name: Create release bundle
+          command: |
+            cd demo-app
+            mkdir artifact
+            tar -czvf "artifact/demo_app_build_${CIRCLE_BUILD_NUM}.tar.gz" build
+      - store_artifacts:
+          path: ./demo-app/artifact
 
 
 
@@ -82,3 +107,6 @@ workflows:
       - build-code:
           requires:
             - validate-code
+      - deploy-code:
+          requires:
+            - build-code
