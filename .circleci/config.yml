@@ -2,6 +2,9 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
+orbs:
+  win: circleci/windows@2.2.0
+
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
@@ -17,6 +20,13 @@ jobs:
       - run:
           name: "Say hello"
           command: "echo Hello, World!"
+  say-hello-windows:
+      executor: win/default
+      steps:
+        - run:
+            name: "Say hello windows"
+            command: "Write-Host 'Hello, Windows'"
+
   validate-code:
     working_directory: ~/project
     docker:
@@ -101,6 +111,7 @@ workflows:
   say-hello-workflow:
     jobs:
       - say-hello
+      - say-hello-windows
   validation-workflow:
     jobs:
       - validate-code
