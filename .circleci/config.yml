@@ -68,6 +68,24 @@ jobs:
             root: demo-app
             paths:
               - build
+  deploy-job:
+      working_directory: ~/project
+      docker:
+        - image: cimg/node:current
+      steps:
+        - checkout
+        - restore_cache:
+            keys:
+              - npm-packages-{{ checksum "demo-app/package.json" }}-{{ checksum "demo-app/package-lock.json" }}
+              - npm-packages-{{ checksum "demo-app/package.json" }}
+              - npm-packages-
+        - attach_workspace:
+            at: demo-app
+        - run:
+            name: Do deploy of application
+            command: |
+              cd demo-app
+              npm run deploy
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
@@ -80,3 +98,6 @@ workflows:
       - build-job:
           requires:
             - validation-job
+      - deploy-job:
+          requires:
+            - build-job
