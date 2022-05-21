@@ -20,14 +20,21 @@ jobs:
   validation-job:
       working_directory: ~/project
       docker:
-        - image: node:current
+        - image: cimg/node:current
       steps:
         - checkout
+        - restore_cache:
+            key: npm-packages-{{ checksum "demo-app/package.json" }}-{{ checksum "demo-app/package-lock.json" }}
         - run:
             name: Do npm install and prerequisites preparation
             command: |
               cd demo-app
               npm install
+        - save_cache:
+            paths:
+              - "./demo-app/node_modules/"
+              - "~/node_modules"
+            key: npm-packages-{{ checksum "demo-app/package.json" }}-{{ checksum "demo-app/package-lock.json" }}
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
