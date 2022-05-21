@@ -34,13 +34,15 @@ jobs:
             name: Do static code analysis
             command: |
               cd demo-app
-              npm run lint
+              npm run lint:ci
         - run:
             name: Run unit tests
             no_output_timeout: 5m
             command: |
               cd demo-app
-              npm run test
+              npm run test:ci
+        - store_test_results:
+            path: demo-app/reports
         - save_cache:
             paths:
               - "./demo-app/node_modules/"
