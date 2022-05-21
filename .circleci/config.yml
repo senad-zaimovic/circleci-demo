@@ -81,11 +81,17 @@ jobs:
               - npm-packages-
         - attach_workspace:
             at: demo-app
+        - add_ssh_keys:
+            fingerprints:
+              - "d8:a6:92:64:0b:e9:e0:ac:83:58:46:0a:a0:c7:d2:19"
         - run:
             name: Do deploy of application
             command: |
               cd demo-app
+              git config --global user.name "senad"
+              git config --global user.email "senad.zaimovic@softhouse.se"
               npm run deploy
+
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
