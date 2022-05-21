@@ -64,6 +64,10 @@ jobs:
             command: |
               cd demo-app
               npm run build
+        - persist_to_workspace:
+            root: demo-app
+            paths:
+              - build
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
