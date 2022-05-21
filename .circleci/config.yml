@@ -101,9 +101,16 @@ workflows:
   validation-workflow:
     jobs:
       - validation-job
-      - build-job:
+      - build-job-approval:
+          type: approval
           requires:
             - validation-job
+      - build-job:
+          requires:
+            - build-job-approval
       - deploy-job:
           requires:
             - build-job
+          filters:
+            branches:
+              only: main
