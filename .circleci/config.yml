@@ -20,7 +20,7 @@ jobs:
   validation-job:
       working_directory: ~/project
       docker:
-        - image: cimg/node:current
+        - image: node:current
       steps:
         - checkout
         - run:
