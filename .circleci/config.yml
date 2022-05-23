@@ -113,8 +113,6 @@ jobs:
       - store_artifacts:
           path: ./demo-app/artifact
 
-
-
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
@@ -132,3 +130,6 @@ workflows:
       - deploy-code:
           requires:
             - build-code
+          filters:
+            branches:
+              only: main
