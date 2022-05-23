@@ -2,6 +2,9 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
+orbs:
+  win: circleci/windows@2.2.0
+
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
@@ -17,6 +20,98 @@ jobs:
       - run:
           name: "Say hello"
           command: "echo Hello, World!"
+  say-hello-windows:
+      executor: win/default
+      steps:
+        - run:
+            name: "Say hello windows"
+            command: "Write-Host 'Hello, Windows'"
+  say-hello-linux:
+      machine:
+        image: ubuntu-2004:current
+      steps:
+        - run:
+            name: "Say hello linux"
+            command: "echo 'Hello, Linux'"
+
+  validate-code:
+    working_directory: ~/project
+    docker:
+      - image: cimg/node:current
+    steps:
+      - checkout
+      - restore_cache:
+          key: npm-packages-{{ checksum "demo-app/package.json" }}-{{ checksum "demo-app/package-lock.json" }}
+      - run:
+          name: Do npm install
+          command: |
+            cd demo-app
+            npm --version
+            npm cache verify
+            npm install --verbose
+      - run:
+          name: Run lint
+          command: |
+            cd demo-app
+            npm run lint:ci
+      - run:
+          name: Run tests
+          command: |
+            cd demo-app
+            npm run test:ci
+      - store_test_results:
+          path: ./demo-app/reports/
+      - save_cache:
+          key: npm-packages-{{ checksum "demo-app/package.json" }}-{{ checksum "demo-app/package-lock.json" }}
+          paths:
+            - ./demo-app/node_modules/
+            - ~/.npm/
+  build-code:
+    working_directory: ~/project
+    docker:
+      - image: cimg/node:current
+    steps:
+      - checkout
+      - restore_cache:
+          key: npm-packages-{{ checksum "demo-app/package.json" }}-{{ checksum "demo-app/package-lock.json" }}
+      - run:
+          name: Do project build
+          no_output_timeout: 2m
+          command: |
+            cd demo-app
+            npm run build
+      - persist_to_workspace:
+          root: demo-app
+          paths:
+            - build/*
+  deploy-code:
+    working_directory: ~/project
+    docker:
+      - image: cimg/node:current
+    steps:
+      - checkout
+      - attach_workspace:
+          at: demo-app
+      - restore_cache:
+          key: npm-packages-{{ checksum "demo-app/package.json" }}-{{ checksum "demo-app/package-lock.json" }}
+      - add_ssh_keys:
+          fingerprints:
+            - "d8:a6:92:64:0b:e9:e0:ac:83:58:46:0a:a0:c7:d2:19"
+      - run:
+          name: Do project deploy to GitHub pages
+          command: |
+            cd demo-app
+            git config user.email "${DEPLOYMENT_EMAIL}"
+            git config user.name "${CIRCLE_USERNAME}"
+            npm run deploy
+      - run:
+          name: Create release bundle
+          command: |
+            cd demo-app
+            mkdir artifact
+            tar -czvf "artifact/demo_app_build_${CIRCLE_BUILD_NUM}.tar.gz" build
+      - store_artifacts:
+          path: ./demo-app/artifact
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
@@ -24,3 +119,17 @@ workflows:
   say-hello-workflow:
     jobs:
       - say-hello
+      - say-hello-windows
+      - say-hello-linux
+  validation-workflow:
+    jobs:
+      - validate-code
+      - build-code:
+          requires:
+            - validate-code
+      - deploy-code:
+          requires:
+            - build-code
+          filters:
+            branches:
+              only: main
